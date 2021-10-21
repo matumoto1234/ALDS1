@@ -1,59 +1,61 @@
-#include<iostream>
-#include<vector>
-#include<map>
-#include<algorithm>
+#include <algorithm>
+#include <iostream>
+#include <vector>
 using namespace std;
-const int INF = 100100100;
 
-vector<int> compress(vector<int> a){
-  int n=a.size();
-  vector<int> res(n);
-  map<int,int> mp;
-  for(int i=0;i<n;i++){
-    mp[a[i]]=i;
+constexpr int INF = INT32_MAX / 2;
+
+vector<int> compress(vector<int> vs) {
+  vector<int> uniques = vs;
+
+  sort(uniques.begin(), uniques.end());
+  uniques.erase(unique(uniques.begin(), uniques.end()), uniques.end());
+
+  for (auto &v: vs) {
+    v = lower_bound(uniques.begin(), uniques.end(), v) - uniques.begin();
   }
-  sort(a.begin(),a.end());
-  for(int i=0;i<n;i++){
-    res[mp[a[i]]]=i;
-  }
-  return res;
+
+  return vs;
 }
 
-int main(){
+int main() {
   int n;
-  cin>>n;
-  vector<int> a(n);
-  int minAll=INF;
-  for(int i=0;i<n;i++){
-    cin>>a[i];
-    minAll=min(minAll,a[i]);
+  cin >> n;
+
+  vector<int> as(n);
+  for (auto &a: as) {
+    cin >> a;
   }
 
-  vector<int> ds = compress(a);
-  vector<bool> arrived(n,false);
-  int ans=0;
-  for(int i=0;i<n;i++){
-    if(arrived[i]) continue;
-    
-    int minv=INF;
-    int sum=0;
-    int size=0;
-    int e=i;
-    while(!arrived[e]){
-      arrived[e]=true;
-      minv=min(minv,a[e]);
-      sum+=a[e];
-      size++;
-      e=ds[e];
+  int a_min = *min_element(as.begin(), as.end());
+
+  vector<int> distinations = compress(as);
+
+  vector<bool> used(n, false);
+
+  int ans = 0;
+
+  for (int i = 0; i < n; i++) {
+    if (used[i]) continue;
+
+    int cycle_min = INF;
+    int cycle_sum = 0;
+    int cycle_size = 0;
+
+    int v = i;
+    while (!used[v]) {
+      cycle_min = min(cycle_min, as[v]);
+      cycle_sum += as[v];
+      cycle_size++;
+
+      used[v] = true;
+      v = distinations[v];
     }
-    if(size==1){
-      continue;
-    }
-    int v1=(size-2)*minv+sum;
-    int v2=(size+1)*minAll+sum+minv;
-    if(minAll==minv) v2=v1;
-    ans+=min(v1,v2);
+
+    int cost1 = cycle_sum + (cycle_size - 2) * cycle_min;
+    int cost2 = cycle_sum + (cycle_size + 1) * a_min + cycle_min;
+    ans += min(cost1, cost2);
   }
-  cout<<ans<<endl;
-  return 0;
+
+  cout << ans << endl;
 }
