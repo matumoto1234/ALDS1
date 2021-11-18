@@ -1,49 +1,67 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-void pushResult(stack<int>& st,char op){
-  if(op=='+'){
-    int temp=st.top();
-    st.pop();
-    temp+=st.top();
-    st.pop();
-    st.push(temp);
-  }else if(op=='-'){
-    int temp=st.top();
-    st.pop();
-    temp=st.top()-temp;
-    st.pop();
-    st.push(temp);
-  }else{
-    int temp=st.top();
-    st.pop();
-    temp*=st.top();
-    st.pop();
-    st.push(temp);
-  }
-}
+namespace my {
+  template <typename T>
+  class stack {
+    vector<T> data;
 
-void outStack(stack<int> st){
-  int i=0;
-  while(!st.empty()){
-    cout<<"i="<<i<<' '<<st.top()<<endl;
-    st.pop();
-    i++;
-  }
+  public:
+    stack(): data(0) {}
 
-}
+    void push(T value) { data.push_back(value); }
 
-int main(){
+    T top() { return data.back(); }
+
+    void pop() { return data.pop_back(); }
+
+    bool empty() { return data.empty(); }
+
+    size_t size() { return data.size(); }
+  };
+} // namespace my
+
+
+bool solve(my::stack<string> &vals) {
   string s;
-  stack<int> st;
-  while(cin>>s){
-    if('0'<=s[0]&&s[0]<='9'){
-      st.push((int)stoi(s));
-      continue;
-    }
-    pushResult(st,s[0]);
-  }
-  cout<<st.top()<<endl;
+  cin >> s;
 
-  return 0;
+  if (cin.eof()) return false;
+
+  if (s == "+") {
+    string val1 = vals.top();
+    vals.pop();
+    string val2 = vals.top();
+    vals.pop();
+    vals.push(to_string(stoll(val1) + stoll(val2)));
+    return true;
+  }
+
+  if (s == "-") {
+    string val1 = vals.top();
+    vals.pop();
+    string val2 = vals.top();
+    vals.pop();
+    vals.push(to_string(stoll(val2) - stoll(val1)));
+    return true;
+  }
+
+  if (s == "*") {
+    string val1 = vals.top();
+    vals.pop();
+    string val2 = vals.top();
+    vals.pop();
+    vals.push(to_string(stoll(val1) * stoll(val2)));
+    return true;
+  }
+
+  vals.push(s);
+
+  return true;
+}
+
+int main() {
+  my::stack<string> vals;
+  while (solve(vals)) {}
+  cout << vals.top() << endl;
 }
